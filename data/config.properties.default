@@ -1,0 +1,12 @@
+#Crunchify Properties
+from.host=localhost
+form.port=3306
+from.user=root
+from.pass=123456
+from.db=
+
+to.host=localhost
+to.port=3306
+to.user=root
+to.pass=123456
+to.db=
