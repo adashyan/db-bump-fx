@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 /**
  * Created by ar on 2/19/15.
  */
-public class MainController implements Initializable, ControlledScreen {
+public class MainController implements Initializable {
 
     @FXML
     private Button cancel;
@@ -54,9 +54,7 @@ public class MainController implements Initializable, ControlledScreen {
 //    }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        setDefaults();
-    }
+    public void initialize(URL location, ResourceBundle resources) { }
 
     @FXML
     private void cancelButtonAction(ActionEvent event) {
@@ -71,12 +69,8 @@ public class MainController implements Initializable, ControlledScreen {
 
     }
 
-    @Override
-    public void setScreenParent(ScreensController screenPage) {
-
-    }
-
-    public void setDefaults(){
+    public void setDefaults(String st){
+        System.out.print(st);
 //        toHost.setText(GetPropertyValues.getProperty(toHost.getId()));
 //        toPort.setText(GetPropertyValues.getProperty(toPort.getId()));
 //        toUser.setText(GetPropertyValues.getProperty(toUser.getId()));

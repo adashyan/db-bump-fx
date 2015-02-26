@@ -2,13 +2,17 @@ package com.ar;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -17,9 +21,7 @@ import java.util.ResourceBundle;
 /**
  * Created by ar on 2/19/15.
  */
-public class ConnectController implements Initializable,ControlledScreen {
-
-    ScreensController sc;
+public class ConnectController implements Initializable {
 
     @FXML
     private Button cancel;
@@ -57,7 +59,12 @@ public class ConnectController implements Initializable,ControlledScreen {
             error.setText("Can not connect to servers");
         } else {
             error.setText("");
-            sc.setScreen(App.screen2ID);
+            try {
+                goToMainScene();
+            } catch (IOException e) {
+                e.printStackTrace();
+                //todo show error message
+            }
         }
     }
 
@@ -105,8 +112,11 @@ public class ConnectController implements Initializable,ControlledScreen {
         return propsTo;
     }
 
-    @Override
-    public void setScreenParent(ScreensController screenPage) {
-        sc = screenPage;
+    private void goToMainScene() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+        Scene mainScene = new Scene((Pane) loader.load());
+        App.main.setScene(mainScene);
+        MainController main = loader.getController();
+        App.main.show();
     }
 }
