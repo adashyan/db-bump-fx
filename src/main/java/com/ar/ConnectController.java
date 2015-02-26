@@ -49,11 +49,12 @@ public class ConnectController implements Initializable {
     @FXML
     private PasswordField fromPass;
 
+    private Connector connector = null;
 
     @FXML
     private void connectButtonAction(ActionEvent event) {
 
-        Connector connector = new Connector(getPropsFrom() , getPropsTo());
+        connector = new Connector(getPropsFrom() , getPropsTo());
 
         if (!connector.open()){
             error.setText("Can not connect to servers");
@@ -117,6 +118,8 @@ public class ConnectController implements Initializable {
         Scene mainScene = new Scene((Pane) loader.load());
         App.main.setScene(mainScene);
         MainController main = loader.getController();
+        main.setConn(connector);
+        main.setDefaults();
         App.main.show();
     }
 }
