@@ -3,10 +3,12 @@ package com.ar;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -59,7 +61,6 @@ public class MainController implements Initializable, ControlledScreen {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        setDefaults();
     }
 
     @FXML
@@ -68,6 +69,11 @@ public class MainController implements Initializable, ControlledScreen {
         Stage stage = (Stage) cancel.getScene().getWindow();
         // do what you have to do
         stage.close();
+    }
+
+    @FXML
+    private void runButtonAction(ActionEvent event) {
+
     }
 
     @Override
