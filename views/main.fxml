@@ -23,8 +23,8 @@
          <children>
             <Label text="Label" />
             <Label text="Label" GridPane.rowIndex="1" />
-            <ComboBox prefWidth="150.0" GridPane.columnIndex="1" />
-            <ComboBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <ComboBox fx:id="from" prefWidth="150.0" GridPane.columnIndex="1" />
+            <ComboBox fx:id="to" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
       <Label text="Label" />
@@ -33,7 +33,7 @@
          <children>
             <ComboBox prefWidth="150.0" />
             <Button mnemonicParsing="false" text="Save" />
-            <CheckBox mnemonicParsing="false" prefHeight="63.0" prefWidth="186.0" text="make a backup" />
+            <CheckBox fx:id="dbbackup" mnemonicParsing="false" prefHeight="63.0" prefWidth="186.0" text="make a backup" />
             <Button fx:id="cancel" mnemonicParsing="false" onAction="#cancelButtonAction" text="Cancel" />
             <Button fx:id="run" mnemonicParsing="false" onAction="#runButtonAction" text="Run" />
          </children>
