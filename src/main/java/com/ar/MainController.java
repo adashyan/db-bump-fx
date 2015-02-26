@@ -3,16 +3,10 @@ package com.ar;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 
@@ -61,6 +55,7 @@ public class MainController implements Initializable, ControlledScreen {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setDefaults();
     }
 
     @FXML
@@ -81,7 +76,7 @@ public class MainController implements Initializable, ControlledScreen {
 
     }
 
-//    public void setDefaults(){
+    public void setDefaults(){
 //        toHost.setText(GetPropertyValues.getProperty(toHost.getId()));
 //        toPort.setText(GetPropertyValues.getProperty(toPort.getId()));
 //        toUser.setText(GetPropertyValues.getProperty(toUser.getId()));
@@ -91,7 +86,7 @@ public class MainController implements Initializable, ControlledScreen {
 //        fromPort.setText(GetPropertyValues.getProperty(fromPort.getId()));
 //        fromUser.setText(GetPropertyValues.getProperty(fromUser.getId()));
 //        fromPass.setText(GetPropertyValues.getProperty(fromPass.getId()));
-//    }
+    }
 
 
 //    public Properties getPropsTo(){

@@ -5,8 +5,8 @@ import java.util.Properties;
 
 
 public class Connector {
-	Connection connFrom, connTo;
-	Statement statFrom, statTo;
+	static Connection connFrom, connTo;
+	static Statement statFrom, statTo;
     static String driver;
 	static String urlFrom;
 	static String urlTo;

@@ -52,7 +52,7 @@ public class ScreensController  extends StackPane {
             if (!getChildren().isEmpty()) {
                 getChildren().remove(0);                    //remove the displayed screen
                 getChildren().add(0, screens.get(name));     //add the screen
-                App.resize(600.0,420.0);
+                App.resize(600.0, 420.0);
             } else {
                 setOpacity(0.0);
                 getChildren().add(screens.get(name));       //no one else been displayed, then just show

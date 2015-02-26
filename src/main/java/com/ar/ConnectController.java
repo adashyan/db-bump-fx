@@ -50,14 +50,15 @@ public class ConnectController implements Initializable,ControlledScreen {
 
     @FXML
     private void connectButtonAction(ActionEvent event) {
-        sc.setScreen(App.screen2ID);
-//        Connector connector = new Connector(getPropsFrom() , getPropsTo());
-//
-//        if (!connector.open()){
-//            error.setText("Can not connect to servers");
-//        } else {
-//            error.setText("");
-//        }
+
+        Connector connector = new Connector(getPropsFrom() , getPropsTo());
+
+        if (!connector.open()){
+            error.setText("Can not connect to servers");
+        } else {
+            error.setText("");
+            sc.setScreen(App.screen2ID);
+        }
     }
 
     @Override
