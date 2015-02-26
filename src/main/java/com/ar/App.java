@@ -21,8 +21,11 @@ public class App extends Application
     public final static String screen2ID = "main";
     public final static String screen2File = "main.fxml";
 
+    public static Stage main = null;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
+        main = primaryStage;
 
         ScreensController mainContainer = new ScreensController();
         mainContainer.loadScreen(App.screen1ID, App.screen1File);
@@ -33,8 +36,9 @@ public class App extends Application
         Group root = new Group(); //FXMLLoader.load(getClass().getResource("main.fxml"));
         root.getChildren().addAll(mainContainer);
 
+        Scene scene = new Scene(root/*, 600, 200*/);
 //        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root/*, 600, 200*/));
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -50,6 +54,13 @@ public class App extends Application
         } catch (URISyntaxException e) {
             e.printStackTrace();
             System.exit(0);
+        }
+    }
+
+    public static void resize(Double w, Double h){
+        if(main != null){
+            main.setWidth(w);
+            main.setHeight(h);
         }
     }
 }
