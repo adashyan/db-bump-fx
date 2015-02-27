@@ -1,6 +1,10 @@
 package com.ar;
 
-import java.sql.*;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+
+import java.sql.DriverManager;
 import java.util.Properties;
 
 
@@ -11,21 +15,28 @@ public class Connector {
 	static String urlFrom;
 	static String urlTo;
 
+	//just for adding in dump file
+	static String dbHostFrom;
+	static String dbHostTo;
+
 	public Connector(Properties propsFrom, Properties propsTo){
         urlFrom = getUrl(propsFrom);
         urlTo   = getUrl(propsTo);
         driver = "com.mysql.jdbc.Driver";
+
+		dbHostFrom = propsFrom.getProperty("host");
+		dbHostTo   = propsTo.getProperty("host");
 	}
 
 	public boolean open() {
 		try {
 			DriverManager.registerDriver((java.sql.Driver) Class.forName(driver).newInstance());
-			connFrom = DriverManager.getConnection(urlFrom);
-			statFrom = connFrom.createStatement();
+			connFrom = (Connection)DriverManager.getConnection(urlFrom);
+			statFrom = (Statement)connFrom.createStatement();
 
 			DriverManager.registerDriver((java.sql.Driver) Class.forName(driver).newInstance());
-			connTo = DriverManager.getConnection(urlTo);
-			statTo = connTo.createStatement();
+			connTo = (Connection) DriverManager.getConnection(urlTo);
+			statTo = (Statement) connTo.createStatement();
 
 		} catch (Exception e) {
 			return false;
@@ -33,17 +44,6 @@ public class Connector {
 		return !(connFrom == null || connTo == null);
 	}
 
-	public ResultSet executeQueryFrom(String s) throws SQLException {
-		return statFrom.executeQuery(s);
-	}
-
-	public ResultSet executeQueryTo(String s) throws SQLException {
-		return statTo.executeQuery(s);
-	}
-
-	public void executeUpdate(String s) throws SQLException {
-		statFrom.executeUpdate(s);
-	}
 
     private String getUrl(Properties props){
 

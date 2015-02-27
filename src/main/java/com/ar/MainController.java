@@ -51,7 +51,9 @@ public class MainController implements Initializable {
 
     @FXML
     private void runButtonAction(ActionEvent event) {
+        Database database = new Database(conn);
 
+        database.execute(from.getValue().toString(), to.getValue().toString(), dbbackup.isSelected(), querys.getText());
     }
 
     public void setDefaults(){
