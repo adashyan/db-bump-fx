@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -33,41 +34,9 @@ public class MainController implements Initializable {
 
     @FXML
     private Button cancel;
-//    @FXML
-//    private Button connect;
-//
-//    @FXML
-//    private Label error;
-//
-//    @FXML
-//    private TextField toHost;
-//    @FXML
-//    private TextField toPort;
-//    @FXML
-//    private TextField toUser;
-//    @FXML
-//    private PasswordField toPass;
-//
-//    @FXML
-//    private TextField fromHost;
-//    @FXML
-//    private TextField fromPort;
-//    @FXML
-//    private TextField fromUser;
-//    @FXML
-//    private PasswordField fromPass;
 
-
-//    @FXML
-//    private void connectButtonAction(ActionEvent event) {
-//        Connector connector = new Connector(getPropsFrom() , getPropsTo());
-//
-//        if (!connector.open()){
-//            error.setText("Can not connect to servers");
-//        } else {
-//            error.setText("");
-//        }
-//    }
+    @FXML
+    private TextArea querys;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) { }
@@ -96,26 +65,6 @@ public class MainController implements Initializable {
     public void setConn(Connector conn) {
         this.conn = conn;
     }
-
-
-//    public Properties getPropsTo(){
-//        Properties propsFrom = new Properties();
-//        propsFrom.setProperty("host", toHost.getText());
-//        propsFrom.setProperty("port", toPort.getText());
-//        propsFrom.setProperty("user", toUser.getText());
-//        propsFrom.setProperty("pass", toPass.getText());
-//        return propsFrom;
-//    }
-//
-//    public Properties getPropsFrom(){
-//        Properties propsTo = new Properties();
-//        propsTo.setProperty("host", fromHost.getText());
-//        propsTo.setProperty("port", fromPort.getText());
-//        propsTo.setProperty("user", fromUser.getText());
-//        propsTo.setProperty("pass", fromPass.getText());
-//        return propsTo;
-//    }
-
 
     private void addDbListToElement(ComboBox comboBox) {
 
