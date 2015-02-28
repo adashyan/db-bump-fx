@@ -30,8 +30,7 @@ public class App extends Application
         Parent root = FXMLLoader.load(getClass().getResource("connect.fxml"));
 
         Scene scene = new Scene(root);
-//        primaryStage.setTitle("Hello World");
-
+        
         final DoubleProperty opacity = primaryStage.opacityProperty();
         primaryStage.setOpacity(0.0);
         primaryStage.setScene(scene);
