@@ -22,7 +22,7 @@ public class Database {
         this.connector = connector;
     }
 
-    public Boolean execute(String dbFrom, String dbTo, Boolean backup, String qs){
+    public Boolean execute(String dbFrom, String dbTo, Boolean backup, String qs) {
 
 //        System.out.println(connector.dbHostTo);
 //        System.out.println(connector.dbHostFrom);
@@ -41,8 +41,9 @@ public class Database {
             BufferedWriter out = new BufferedWriter(new FileWriter(temp));
 
             connector.connFrom.setCatalog(dbFrom);
-            out.write(dumpCreateTable(connector.connFrom, out, "h6_admin_user"));
-            out.write(dumpTable(connector.connFrom, out, "h6_admin_user"));
+            
+            dumpCreateTable(connector.connFrom, out, "h6_content");
+            dumpTable(connector.connFrom, out, "h6_content");
 
 
 //            out.write(content);
@@ -60,93 +61,96 @@ public class Database {
         return null;
     }
 
-    public String dumpTable(Connection conn, BufferedWriter out, String table){
-        try{
-            Statement s = conn.createStatement (ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+    private void dumpTable(Connection conn, BufferedWriter out, String table) {
+        dumpTable(conn, out, table, 1000);
+    }
+
+    protected void dumpTable(Connection conn, BufferedWriter out, String table, int chunk) {
+        try {
+            Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             out.write("\n\n--\n-- Dumping data for table `" + table + "`\n--\n\n");
-            s.executeQuery ("SELECT /*!40001 SQL_NO_CACHE */ * FROM " + table);
-            ResultSet rs = s.getResultSet ();
+
+            
+
+            s.executeQuery("SELECT /*!40001 SQL_NO_CACHE */ * FROM " + table);
+            ResultSet rs = s.getResultSet();
+
             ResultSetMetaData rsMetaData = rs.getMetaData();
             int columnCount = rsMetaData.getColumnCount();
+
             String prefix = new String("INSERT INTO " + table + " (");
+
             for (int i = 1; i <= columnCount; i++) {
-                if (i == columnCount){
-                    prefix += rsMetaData.getColumnName(i) + ") VALUES(";
-                }else{
+                if (i == columnCount) {
+                    prefix += rsMetaData.getColumnName(i) + ") VALUES( ";
+                } else {
                     prefix += rsMetaData.getColumnName(i) + ",";
                 }
             }
-            String postfix = new String();
+
+            String postfix;
             int count = 0;
-            while (rs.next ())
-            {
+
+            while (rs.next()) {
 
                 postfix = "";
                 for (int i = 1; i <= columnCount; i++) {
-                    if (i == columnCount){
+                    if (i == columnCount) {
                         System.err.println(rs.getMetaData().getColumnClassName(i));
                         postfix += "'" + rs.getString(i) + "');\n";
-                    }else{
+                    } else {
 
                         System.err.println(rs.getMetaData().getColumnTypeName(i));
-                        if (rs.getMetaData().getColumnTypeName(i).equalsIgnoreCase("LONGBLOB")){
-                            try{
+                        if (rs.getMetaData().getColumnTypeName(i).equalsIgnoreCase("LONGBLOB")) {
+                            try {
                                 postfix += "'" + escapeString(rs.getBytes(i)).toString() + "',";
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 postfix += "NULL,";
                             }
-                        }else{
-                            try{
-                                postfix += "'" + rs.getString(i).replaceAll("\n","\\\\n").replaceAll("'","\\\\'") + "',";
-                            }catch (Exception e){
+                        } else {
+                            try {
+                                postfix += "'" + rs.getString(i).replaceAll("\n", "\\\\n").replaceAll("'", "\\\\'") + "',";
+                            } catch (Exception e) {
                                 postfix += "NULL,";
                             }
-                        }   }
+                        }
+                    }
                 }
                 out.write(prefix + postfix + "\n");
                 ++count;
             }
             rs.close();
             s.close();
-        }catch(IOException e){
-            System.err.println(e.getMessage());
-        }catch(SQLException e){
+        } catch (IOException | SQLException e) {
             System.err.println(e.getMessage());
         }
 
-        return table;
+
     }
 
-    public String dumpCreateTable(Connection conn, BufferedWriter out, String table) {
+    protected void dumpCreateTable(Connection conn, BufferedWriter out, String table) {
         String createTable = null;
-        try{
+        try {
             out.write(getDropTable(table));
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             s.executeQuery("SHOW CREATE TABLE " + table);
             ResultSet rs = s.getResultSet();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 createTable = rs.getString("Create Table") + ";";
             }
+            out.write(createTable);
 
-
-        } catch (SQLException e) {
-            System.out.println("test");
-            System.err.println(e.getMessage());
-
-        } catch(IOException e){
+        } catch (SQLException | IOException e) {
             System.err.println(e.getMessage());
         }
-
-        return createTable;
     }
 
-    private String getDropTable(String table) {
+    protected String getDropTable(String table) {
         return "\n\n# Dump of table " + table + " \n# --------------------------------------------------\n\n DROP TABLE IF EXISTS `" + table + "`;\n\n";
-
     }
 
-    private String getHeader() {
+    protected String getHeader() {
         //return Dump Header
 //        return "----- MySQL Dump -----" + version + "\n--\n-- Host: " + hostname + "    " + "Database: " + database + "\n-- ------------------------------------------------------\n-- Server Version: " + databaseProductVersion + "\n--";
         return null;
@@ -155,12 +159,12 @@ public class Database {
     /**
      * Escape string ready for insert via mysql client
      *
-     * @param  bIn       String to be escaped passed in as byte array
-     * @return bOut      MySQL compatible insert ready ByteArrayOutputStream
+     * @param bIn String to be escaped passed in as byte array
+     * @return bOut MySQL compatible insert ready ByteArrayOutputStream
      */
-    private ByteArrayOutputStream escapeString(byte[] bIn){
+    private ByteArrayOutputStream escapeString(byte[] bIn) {
         int numBytes = bIn.length;
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream(numBytes+ 2);
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream(numBytes + 2);
         for (int i = 0; i < numBytes; ++i) {
             byte b = bIn[i];
 
@@ -183,16 +187,14 @@ public class Database {
                 case '\\':
                     bOut.write('\\');
                     bOut.write('\\');
-
                     break;
 
                 case '\'':
                     bOut.write('\\');
                     bOut.write('\'');
-
                     break;
 
-                case '"': /* Better safe than sorry */
+                case '"':
                     bOut.write('\\');
                     bOut.write('"');
                     break;
