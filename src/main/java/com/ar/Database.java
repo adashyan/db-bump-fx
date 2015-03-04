@@ -41,7 +41,8 @@ public class Database {
             BufferedWriter out = new BufferedWriter(new FileWriter(temp));
 
             connector.connFrom.setCatalog(dbFrom);
-            
+
+
             dumpCreateTable(connector.connFrom, out, "h6_content");
             dumpTable(connector.connFrom, out, "h6_content");
 
@@ -58,11 +59,12 @@ public class Database {
             e.printStackTrace();
         }
 
+        System.out.println(".... done ....");
         return null;
     }
 
     private void dumpTable(Connection conn, BufferedWriter out, String table) {
-        dumpTable(conn, out, table, 1000);
+        dumpTable(conn, out, table, 10);
     }
 
     protected void dumpTable(Connection conn, BufferedWriter out, String table, int chunk) {
@@ -82,7 +84,7 @@ public class Database {
 
             for (int i = 1; i <= columnCount; i++) {
                 if (i == columnCount) {
-                    prefix += rsMetaData.getColumnName(i) + ") VALUES( ";
+                    prefix += rsMetaData.getColumnName(i) + ") \nVALUES \n   ";
                 } else {
                     prefix += rsMetaData.getColumnName(i) + ",";
                 }
@@ -91,34 +93,34 @@ public class Database {
             String postfix;
             int count = 0;
 
+            System.out.println(prefix);
+
             while (rs.next()) {
 
                 postfix = "";
-                for (int i = 1; i <= columnCount; i++) {
-                    if (i == columnCount) {
-                        System.err.println(rs.getMetaData().getColumnClassName(i));
-                        postfix += "'" + rs.getString(i) + "');\n";
-                    } else {
 
-                        System.err.println(rs.getMetaData().getColumnTypeName(i));
-                        if (rs.getMetaData().getColumnTypeName(i).equalsIgnoreCase("LONGBLOB")) {
-                            try {
-                                postfix += "'" + escapeString(rs.getBytes(i)).toString() + "',";
-                            } catch (Exception e) {
-                                postfix += "NULL,";
-                            }
-                        } else {
-                            try {
-                                postfix += "'" + rs.getString(i).replaceAll("\n", "\\\\n").replaceAll("'", "\\\\'") + "',";
-                            } catch (Exception e) {
-                                postfix += "NULL,";
-                            }
+                if(count < chunk) {
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        if(i != columnCount) {
+                            postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "',";
+                        }else {
+                            postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "'";
                         }
+
                     }
+
+                    out.write("(" + postfix + "),\n");
+                    ++count;
+
+                } else {
+                    count = 0;
+                    out.write(prefix + "(" + postfix + ");\n");
                 }
-                out.write(prefix + postfix + "\n");
-                ++count;
+
             }
+
+
             rs.close();
             s.close();
         } catch (IOException | SQLException e) {
@@ -155,6 +157,7 @@ public class Database {
 //        return "----- MySQL Dump -----" + version + "\n--\n-- Host: " + hostname + "    " + "Database: " + database + "\n-- ------------------------------------------------------\n-- Server Version: " + databaseProductVersion + "\n--";
         return null;
     }
+
 
     /**
      * Escape string ready for insert via mysql client
