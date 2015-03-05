@@ -5,6 +5,10 @@ import com.mysql.jdbc.Connection;
 import java.io.*;
 import java.sql.*;
 
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 /**
  * Created by ar on 2/26/15.
  */
@@ -24,47 +28,36 @@ public class Database {
 
     public Boolean execute(String dbFrom, String dbTo, Boolean backup, String qs) {
 
-//        System.out.println(connector.dbHostTo);
-//        System.out.println(connector.dbHostFrom);
-//        System.out.println(dbFrom+" " + dbTo + " " + backup + " " + qs);
+        createDump(dbFrom);
+        return null;
+    }
 
-//        BufferedWriter out;
+    private Boolean createDump(String dbFrom){
         try {
-            String s = App.appRoot + File.separator + "db" + File.separator;
-            System.out.println(s);
-            File temp = new File(s + dbFrom + ".sql");
 
-            if (!temp.exists()) {
-                temp.createNewFile();
-            }
+            File file = getFile(dbFrom);
 
-            BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+            BufferedWriter out = new BufferedWriter(new FileWriter(file));
 
+            //set database
             connector.connFrom.setCatalog(dbFrom);
-
 
             dumpCreateTable(connector.connFrom, out, "h6_content");
             dumpTable(connector.connFrom, out, "h6_content");
 
-
-//            out.write(content);
             out.close();
-//            System.out.println(out.toString());
 
-
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
 
         System.out.println(".... done ....");
-        return null;
+        return true;
     }
 
     private void dumpTable(Connection conn, BufferedWriter out, String table) {
-        dumpTable(conn, out, table, 10);
+        dumpTable(conn, out, table, 100);
     }
 
     protected void dumpTable(Connection conn, BufferedWriter out, String table, int chunk) {
@@ -72,7 +65,6 @@ public class Database {
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             out.write("\n\n--\n-- Dumping data for table `" + table + "`\n--\n\n");
 
-            
 
             s.executeQuery("SELECT /*!40001 SQL_NO_CACHE */ * FROM " + table);
             ResultSet rs = s.getResultSet();
@@ -91,7 +83,7 @@ public class Database {
             }
 
             String postfix;
-            int count = 0;
+            int count = 1;
 
             System.out.println(prefix);
 
@@ -99,23 +91,23 @@ public class Database {
 
                 postfix = "";
 
-                if(count < chunk) {
-
-                    for (int i = 1; i <= columnCount; i++) {
-                        if(i != columnCount) {
-                            postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "',";
-                        }else {
-                            postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "'";
-                        }
-
+                for (int i = 1; i <= columnCount; i++) {
+                    if (i != columnCount) {
+                        postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "',";
+                    } else {
+                        postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "'";
                     }
+                }
 
-                    out.write("(" + postfix + "),\n");
+                if (count == 1) {
+                    out.write(prefix + "(" + postfix + "),\n");
                     ++count;
-
+                } else if (count < chunk) {
+                    out.write("   (" + postfix + "),\n");
+                    ++count;
                 } else {
-                    count = 0;
-                    out.write(prefix + "(" + postfix + ");\n");
+                    count = 1;
+                    out.write("   (" + postfix + ");\n");
                 }
 
             }
@@ -126,7 +118,6 @@ public class Database {
         } catch (IOException | SQLException e) {
             System.err.println(e.getMessage());
         }
-
 
     }
 
@@ -149,7 +140,7 @@ public class Database {
     }
 
     protected String getDropTable(String table) {
-        return "\n\n# Dump of table " + table + " \n# --------------------------------------------------\n\n DROP TABLE IF EXISTS `" + table + "`;\n\n";
+        return "\n\n# Dump of table `" + table + "` \n# --------------------------------------------------\n\n DROP TABLE IF EXISTS `" + table + "`;\n\n";
     }
 
     protected String getHeader() {
@@ -212,5 +203,21 @@ public class Database {
             }
         }
         return bOut;
+    }
+    private File getFile(String db) throws IOException {
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        Date date = new Date();
+        String d = dateFormat.format(date).toString();
+
+        String s = App.appRoot + File.separator + "db" + File.separator;
+
+        File temp = new File(s + db + "_" + d +".sql");
+
+        if (!temp.exists()) {
+            temp.createNewFile();
+        }
+
+        return temp;
     }
 }
