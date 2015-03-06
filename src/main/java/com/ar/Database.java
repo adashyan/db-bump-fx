@@ -57,7 +57,7 @@ public class Database {
     }
 
     private void dumpTable(Connection conn, BufferedWriter out, String table) {
-        dumpTable(conn, out, table, 100);
+        dumpTable(conn, out, table, 1000);
     }
 
     protected void dumpTable(Connection conn, BufferedWriter out, String table, int chunk) {
@@ -65,13 +65,14 @@ public class Database {
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             out.write("\n\n--\n-- Dumping data for table `" + table + "`\n--\n\n");
 
-
             s.executeQuery("SELECT /*!40001 SQL_NO_CACHE */ * FROM " + table);
             ResultSet rs = s.getResultSet();
 
             ResultSetMetaData rsMetaData = rs.getMetaData();
             int columnCount = rsMetaData.getColumnCount();
 
+            out.write("LOCK TABLES `" + table + "` WRITE;\n\n");
+            out.write(" /*!40000 ALTER TABLE `" + table + "` DISABLE KEYS */;\n\n");
             String prefix = new String("INSERT INTO " + table + " (");
 
             for (int i = 1; i <= columnCount; i++) {
@@ -85,12 +86,8 @@ public class Database {
             String postfix;
             int count = 1;
 
-            System.out.println(prefix);
-
             while (rs.next()) {
-
                 postfix = "";
-
                 for (int i = 1; i <= columnCount; i++) {
                     if (i != columnCount) {
                         postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "',";
@@ -102,6 +99,8 @@ public class Database {
                 if (count == 1) {
                     out.write(prefix + "(" + postfix + "),\n");
                     ++count;
+                } else if(rs.isLast()) {
+                    out.write("   (" + postfix + ");\n");
                 } else if (count < chunk) {
                     out.write("   (" + postfix + "),\n");
                     ++count;
@@ -109,9 +108,10 @@ public class Database {
                     count = 1;
                     out.write("   (" + postfix + ");\n");
                 }
-
             }
 
+            out.write("\n /*!40000 ALTER TABLE `" + table + "` ENABLE KEYS */;");
+            out.write("\n\n UNLOCK TABLES;\n\n");
 
             rs.close();
             s.close();
