@@ -102,6 +102,7 @@ public class Database {
                     }
                 }
 
+                //todo fix issue this
                 if (count == 1) {
                     out.write(prefix + "(" + postfix + "),\n");
                     ++count;
