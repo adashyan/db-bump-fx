@@ -42,9 +42,15 @@ public class Database {
             //set database
             connector.connFrom.setCatalog(dbFrom);
 
-            dumpCreateTable(connector.connFrom, out, "h6_content");
-            dumpTable(connector.connFrom, out, "h6_content");
+            setHeader(out);
+            DatabaseMetaData md = connector.connFrom.getMetaData();
+            ResultSet rs = md.getTables(null, null, "%", null);
+            while (rs.next()) {
+                dumpCreateTable(connector.connFrom, out, rs.getString(3));
+                dumpTable(connector.connFrom, out, rs.getString(3));
+            }
 
+            setFooter(out);
             out.close();
 
         } catch (IOException | SQLException e) {
@@ -73,13 +79,13 @@ public class Database {
 
             out.write("LOCK TABLES `" + table + "` WRITE;\n\n");
             out.write(" /*!40000 ALTER TABLE `" + table + "` DISABLE KEYS */;\n\n");
-            String prefix = new String("INSERT INTO " + table + " (");
+            String prefix = new String("INSERT INTO `" + table + "` (`");
 
             for (int i = 1; i <= columnCount; i++) {
                 if (i == columnCount) {
-                    prefix += rsMetaData.getColumnName(i) + ") \nVALUES \n   ";
+                    prefix += rsMetaData.getColumnName(i) + "`) \nVALUES \n   ";
                 } else {
-                    prefix += rsMetaData.getColumnName(i) + ",";
+                    prefix += rsMetaData.getColumnName(i) + "`,`";
                 }
             }
 
@@ -140,15 +146,29 @@ public class Database {
     }
 
     protected String getDropTable(String table) {
-        return "\n\n# Dump of table `" + table + "` \n# --------------------------------------------------\n\n DROP TABLE IF EXISTS `" + table + "`;\n\n";
+        return "\n\n# Dump of table `" + table + "` \n# --------------------------------------------------\n\nDROP TABLE IF EXISTS `" + table + "`;\n\n";
     }
 
-    protected String getHeader() {
+    protected void setHeader(BufferedWriter out) throws IOException {
         //return Dump Header
 //        return "----- MySQL Dump -----" + version + "\n--\n-- Host: " + hostname + "    " + "Database: " + database + "\n-- ------------------------------------------------------\n-- Server Version: " + databaseProductVersion + "\n--";
-        return null;
+        out.write("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;\n");
+        out.write("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;\n");
+        out.write("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\n");
+        out.write("/*!40101 SET NAMES utf8 */;\n");
+        out.write("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;\n");
+        out.write("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;\n");
+        out.write("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;\n\n");
     }
 
+    protected void setFooter(BufferedWriter out) throws IOException {
+        out.write("\n\n/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;\n");
+        out.write("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;\n");
+        out.write("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;\n");
+        out.write("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
+        out.write("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
+        out.write("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n\n");
+    }
 
     /**
      * Escape string ready for insert via mysql client
@@ -204,6 +224,7 @@ public class Database {
         }
         return bOut;
     }
+
     private File getFile(String db) throws IOException {
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
