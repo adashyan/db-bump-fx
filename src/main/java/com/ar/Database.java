@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
  */
 public class Database {
 
-    private final static String version = "0.1";
+    private final static String version = "0.0.1";
 
     private DatabaseMetaData databaseMetaData;
     private String databaseProductVersion = null;
@@ -90,20 +90,23 @@ public class Database {
             }
 
             String postfix;
+            String stmp;
             int count = 1;
 
             while (rs.next()) {
                 postfix = "";
                 for (int i = 1; i <= columnCount; i++) {
                     if (i != columnCount) {
-                        postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "',";
+                        postfix += ((rs.getBytes(i) == null) ? "NULL," : ("'" + escapeString(rs.getBytes(i)).toString() + "',"));
                     } else {
-                        postfix += "'" + ((rs.getBytes(i) == null) ? "null" : escapeString(rs.getBytes(i)).toString()) + "'";
+                        postfix += ((rs.getBytes(i) == null) ? "NULL" : ("'" + escapeString(rs.getBytes(i)).toString() + "'"));
                     }
                 }
 
                 //todo fix issue this
-                if (count == 1) {
+                if(count == 1 && rs.isLast()){
+                    out.write(prefix + "(" + postfix + ");\n");
+                }else if (count == 1) {
                     out.write(prefix + "(" + postfix + "),\n");
                     ++count;
                 } else if(rs.isLast()) {
